@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
+// PASTIKAN PATH INI SESUAI: lib/screens/forget_password_screen.dart
+import 'screens/forget_password_screen.dart'; 
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -45,9 +47,14 @@ class LoginScreen extends StatelessWidget {
                           ),
                           Row(
                             children: [
+                              // Ganti dengan placeholder jika asset tidak ada
                               Image.asset(
                                 "assets/logo.png",
                                 width: 30,
+                                // Fallback: jika gambar tidak ada, gunakan ikon atau teks
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.park, color: Colors.white);
+                                },
                               ),
                               const SizedBox(width: 6),
                               const Text(
@@ -87,17 +94,17 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 35),
 
             // ====================== EMAIL ======================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25),
               child: TextField(
                 decoration: InputDecoration(
                   labelText: "Email",
-                  labelStyle: const TextStyle(color: Colors.red),
+                  labelStyle: TextStyle(color: Colors.red),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.red),
+                    borderSide: BorderSide(color: Colors.red),
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
                 ),
               ),
@@ -106,18 +113,18 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // ====================== PASSWORD ======================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25),
               child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: "Password",
-                  labelStyle: const TextStyle(color: Colors.red),
+                  labelStyle: TextStyle(color: Colors.red),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.red),
+                    borderSide: BorderSide(color: Colors.red),
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
                 ),
               ),
@@ -137,23 +144,37 @@ class LoginScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 35, vertical: 14),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      // Logic SIGN IN Anda di sini
+                      print('Tombol SIGN IN ditekan.');
+                    },
                     child: const Text("SIGN IN"),
                   ),
+                  
+                  // ====================== FORGOT PASSWORD BUTTON (FIXED) ======================
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // Navigasi ke ForgetPasswordScreen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgetPasswordScreen(),
+                        ),
+                      );
+                    },
                     child: const Text(
                       "FORGOT PASSWORD",
                       style: TextStyle(color: Colors.red),
                     ),
-                  )
+                  ),
+                  // ============================================================================
                 ],
               ),
             ),
 
             const SizedBox(height: 35),
 
-            // ====================== PANEL PUTIH BAWAH ======================
+            // ====================== PANEL PUTIH BAWAH (REGISTER) ======================
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
@@ -179,6 +200,7 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
+                      // Navigasi ke RegisterScreen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
