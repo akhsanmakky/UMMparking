@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
-// PASTIKAN PATH INI SESUAI: lib/screens/forget_password_screen.dart
-import 'screens/forget_password_screen.dart'; 
+import 'screens/forget_password_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -15,12 +14,12 @@ class LoginScreen extends StatelessWidget {
           children: [
             // ====================== HEADER MERAH ======================
             Container(
-              height: 330,
+              height: 320,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color.fromARGB(255, 154, 12, 2),
-                    Color.fromARGB(255, 241, 221, 214)
+                    Color(0xFF9A0C02),
+                    Color(0xFFD2A49A)
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -47,14 +46,11 @@ class LoginScreen extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              // Ganti dengan placeholder jika asset tidak ada
                               Image.asset(
                                 "assets/logo.png",
                                 width: 30,
-                                // Fallback: jika gambar tidak ada, gunakan ikon atau teks
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(Icons.park, color: Colors.white);
-                                },
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.park, color: Colors.white),
                               ),
                               const SizedBox(width: 6),
                               const Text(
@@ -69,7 +65,7 @@ class LoginScreen extends StatelessWidget {
                         ],
                       ),
 
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 25),
 
                       const Text(
                         "Selamat Datang",
@@ -80,10 +76,73 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Silakan masuk untuk melanjutkan",
-                        style: TextStyle(color: Colors.white70),
+                      const SizedBox(height: 15),
+
+                      // ====================== EMAIL FIELD ======================
+                      const TextField(
+                        decoration: InputDecoration(
+                          labelText: "Email",
+                          labelStyle: TextStyle(color: Colors.white),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white70),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                        ),
+                        style: TextStyle(color: Colors.white),
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      // ====================== PASSWORD FIELD ======================
+                      const TextField(
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          labelStyle: TextStyle(color: Colors.white),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white70),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                        ),
+                        style: TextStyle(color: Colors.white),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // SIGN IN + FORGOT
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 35, vertical: 14),
+                            ),
+                            onPressed: () {},
+                            child: const Text("SIGN IN"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ForgetPasswordScreen(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "FORGET PASSWORD",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 13),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -91,96 +150,25 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 35),
-
-            // ====================== EMAIL ======================
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25),
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  labelStyle: TextStyle(color: Colors.red),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red),
+            // ====================== LINGKARAN PUTIH + PANAH ======================
+            Transform.translate(
+              offset: const Offset(0, -18),
+              child: Column(
+                children: const [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.keyboard_arrow_up, size: 28),
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // ====================== PASSWORD ======================
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25),
-              child: TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  labelStyle: TextStyle(color: Colors.red),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            // ====================== SIGN IN + FORGOT ======================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 35, vertical: 14),
-                    ),
-                    onPressed: () {
-                      // Logic SIGN IN Anda di sini
-                      print('Tombol SIGN IN ditekan.');
-                    },
-                    child: const Text("SIGN IN"),
-                  ),
-                  
-                  // ====================== FORGOT PASSWORD BUTTON (FIXED) ======================
-                  TextButton(
-                    onPressed: () {
-                      // Navigasi ke ForgetPasswordScreen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ForgetPasswordScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "FORGOT PASSWORD",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                  // ============================================================================
                 ],
               ),
             ),
 
-            const SizedBox(height: 35),
+            const SizedBox(height: 10),
 
-            // ====================== PANEL PUTIH BAWAH (REGISTER) ======================
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-              ),
+            // ====================== PANEL PUTIH BAWAH ======================
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -192,24 +180,39 @@ class LoginScreen extends StatelessWidget {
                       color: Colors.black87,
                     ),
                   ),
+
                   const SizedBox(height: 10),
+
                   const Text(
                     "Jika belum ada akun\nbuatlah akun terlebih dahulu",
                     style: TextStyle(color: Colors.black54),
                   ),
+
                   const SizedBox(height: 20),
-                  TextButton(
+
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF9A0C02),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      elevation: 3,
+                    ),
                     onPressed: () {
-                      // Navigasi ke RegisterScreen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (_) => const RegisterScreen()),
                       );
                     },
-                    child: const Text(
-                      "Buat Akun",
-                      style: TextStyle(color: Colors.red),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Text("Buat Akun"),
+                        SizedBox(width: 5),
+                        Icon(Icons.keyboard_arrow_up, size: 22),
+                      ],
                     ),
                   ),
                 ],
