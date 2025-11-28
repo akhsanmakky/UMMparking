@@ -1,9 +1,33 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
 import 'screens/forget_password_screen.dart';
+import 'screens/menu_utama.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
+
+  // ====== ANIMASI CUSTOM ======
+  Route _createRouteToMenu() {
+    return PageRouteBuilder(
+      transitionDuration: const Duration(milliseconds: 600),
+      pageBuilder: (context, animation, secondaryAnimation) => const MenuUtama(),
+      transitionsBuilder: (context, animation, secondary, child) {
+        final offsetAnimation = Tween(
+          begin: const Offset(0.0, 0.2),
+          end: Offset.zero,
+        ).animate(
+            CurvedAnimation(parent: animation, curve: Curves.easeOutQuad));
+
+        final fadeAnimation =
+            Tween(begin: 0.0, end: 1.0).animate(animation);
+
+        return FadeTransition(
+          opacity: fadeAnimation,
+          child: SlideTransition(position: offsetAnimation, child: child),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +41,7 @@ class LoginScreen extends StatelessWidget {
               height: 320,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF9A0C02),
-                    Color(0xFFD2A49A)
-                  ],
+                  colors: [Color(0xFF9A0C02), Color(0xFFD2A49A)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -123,9 +144,16 @@ class LoginScreen extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 35, vertical: 14),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                _createRouteToMenu(),
+                              );
+                            },
                             child: const Text("SIGN IN"),
                           ),
+
+                          // Forgot password
                           TextButton(
                             onPressed: () {
                               Navigator.push(
@@ -153,14 +181,10 @@ class LoginScreen extends StatelessWidget {
             // ====================== LINGKARAN PUTIH + PANAH ======================
             Transform.translate(
               offset: const Offset(0, -18),
-              child: Column(
-                children: const [
-                  CircleAvatar(
-                    radius: 22,
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.keyboard_arrow_up, size: 28),
-                  ),
-                ],
+              child: const CircleAvatar(
+                radius: 22,
+                backgroundColor: Colors.white,
+                child: Icon(Icons.keyboard_arrow_up, size: 28),
               ),
             ),
 
@@ -197,7 +221,6 @@ class LoginScreen extends StatelessWidget {
                           horizontal: 18, vertical: 12),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
-                      elevation: 3,
                     ),
                     onPressed: () {
                       Navigator.push(
@@ -206,9 +229,9 @@ class LoginScreen extends StatelessWidget {
                             builder: (_) => const RegisterScreen()),
                       );
                     },
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
+                      children: [
                         Text("Buat Akun"),
                         SizedBox(width: 5),
                         Icon(Icons.keyboard_arrow_up, size: 22),
