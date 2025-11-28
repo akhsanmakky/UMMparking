@@ -7,56 +7,90 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              "assets/logo.png",
-              width: 130,
-              errorBuilder: (context, error, stackTrace) {
-                // jika asset gagal, tampilkan placeholder supaya tidak crash
-                return const Icon(Icons.local_parking, size: 130, color: Colors.red);
-              },
+      extendBodyBehindAppBar: true,
+
+      // ====================== APP BAR CUSTOM ======================
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFB00000),
+                Color(0xFF8B0000),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            const SizedBox(height: 20),
-            const Text(
-              "UMMPark",
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // TOMBOL HOME
+                  IconButton(
+                    icon: const Icon(Icons.home, color: Colors.white, size: 26),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HomeScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // TOMBOL MENU ARROW
+                  IconButton(
+                    icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                        color: Colors.white, size: 32),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 40),
+          ),
+        ),
+      ),
 
-            // gunakan ElevatedButton.icon untuk feedback lebih jelas
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
-              ),
-              onPressed: () {
-                // debug print supaya kita tahu onPressed terpanggil
-                debugPrint("HomeScreen: MASUK button pressed");
-
-                try {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  );
-                } catch (e, st) {
-                  // jika ada error saat navigasi, tampilkan snackbar agar kelihatan
-                  debugPrint("Navigation error: $e\n$st");
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Terjadi kesalahan: $e')),
-                  );
-                }
-              },
-              icon: const Icon(Icons.login, color: Colors.white),
-              label: const Text("MASUK", style: TextStyle(color: Colors.white)),
+      // ====================== BODY ======================
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromARGB(255, 255, 230, 230),
+              Colors.white,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 60),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  "assets/logo.png",
+                  width: 150,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
