@@ -3,6 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
+// =============================================
+//  DUMMY PAGE → GANTI DENGAN HALAMAN ASLI KAMU
+// =============================================
+class RiwayatParkirPage extends StatelessWidget {
+  const RiwayatParkirPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Riwayat Parkir")),
+      body: const Center(
+        child: Text("Halaman Riwayat Parkir"),
+      ),
+    );
+  }
+}
+
+// =============================================
+//  DETAIL ZONA PAGE
+// =============================================
 class DetailZona extends StatefulWidget {
   const DetailZona({super.key});
 
@@ -20,6 +40,8 @@ class _DetailZonaState extends State<DetailZona> {
   Location location = Location();
   LatLng? userLatLng;
 
+  int currentIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -33,12 +55,14 @@ class _DetailZonaState extends State<DetailZona> {
   // =========================
   Future<void> _loadMarkerIcons() async {
     parkingIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(48, 48)),
-        "assets/icons/parking.png");
+      const ImageConfiguration(size: Size(48, 48)),
+      "assets/icons/parking.png",
+    );
 
     userIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(48, 48)),
-        "assets/icons/user_location.png");
+      const ImageConfiguration(size: Size(48, 48)),
+      "assets/icons/user_location.png",
+    );
 
     setState(() {});
   }
@@ -50,21 +74,21 @@ class _DetailZonaState extends State<DetailZona> {
     bool serviceEnabled;
     PermissionStatus permissionGranted;
 
-    // Service ON?
+    // Cek GPS
     serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
       if (!serviceEnabled) return;
     }
 
-    // Permission
+    // Permission lokasi
     permissionGranted = await location.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
       if (permissionGranted != PermissionStatus.granted) return;
     }
 
-    // Listen real-time
+    // Mendengarkan pergerakan user realtime
     location.onLocationChanged.listen((loc) {
       userLatLng = LatLng(loc.latitude!, loc.longitude!);
 
@@ -81,11 +105,9 @@ class _DetailZonaState extends State<DetailZona> {
 
       setState(() {});
 
-      if (mapController != null) {
-        mapController!.animateCamera(
-          CameraUpdate.newLatLng(userLatLng!),
-        );
-      }
+      mapController?.animateCamera(
+        CameraUpdate.newLatLng(userLatLng!),
+      );
     });
   }
 
@@ -110,7 +132,21 @@ class _DetailZonaState extends State<DetailZona> {
   }
 
   // =========================
-  // UI
+  //  NAVIGASI BOTTOM BAR
+  // =========================
+  void _onTabTapped(int index) {
+    setState(() => currentIndex = index);
+
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const RiwayatParkirPage()),
+      );
+    }
+  }
+
+  // =========================
+  //  UI
   // =========================
   @override
   Widget build(BuildContext context) {
@@ -145,7 +181,6 @@ class _DetailZonaState extends State<DetailZona> {
       padding: const EdgeInsets.only(top: 55, left: 20, right: 20, bottom: 20),
       child: Row(
         children: [
-          // BUTTON BACK
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
@@ -253,23 +288,17 @@ class _DetailZonaState extends State<DetailZona> {
   }
 
   Widget _bottomNav() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, -1)),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
-          Icon(Icons.home, size: 30, color: Colors.red),
-          Icon(Icons.emoji_emotions, size: 30, color: Colors.red),
-          Icon(Icons.call, size: 30, color: Colors.red),
-          Icon(Icons.person, size: 30, color: Colors.red),
-        ],
-      ),
+    return BottomNavigationBar(
+      currentIndex: currentIndex,
+      selectedItemColor: Colors.red,
+      unselectedItemColor: Colors.black45,
+      onTap: _onTabTapped,
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+        BottomNavigationBarItem(icon: Icon(Icons.history), label: "Riwayat"),
+        BottomNavigationBarItem(icon: Icon(Icons.call), label: "Call"),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+      ],
     );
   }
 }
