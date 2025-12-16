@@ -1,4 +1,3 @@
-// riwayat_parkir.dart
 import 'package:flutter/material.dart';
 
 class RiwayatParkir extends StatelessWidget {
@@ -24,7 +23,8 @@ class RiwayatParkir extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 "$day, $date",
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -40,81 +40,30 @@ class RiwayatParkir extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFD32F2F),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // HEADER
-          Container(
-            padding: const EdgeInsets.only(top: 55, left: 20, right: 20, bottom: 20),
-            child: const Text(
-              "Riwayat Parkir",
-              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-          ),
 
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Color(0xFFD32F2F),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _riwayatCard("Senin", "20 Oktober 2025", "06:33 Wib", "09:55 Wib"),
-                    _riwayatCard("Senin", "20 Oktober 2025", "13:56 Wib", "15:24 Wib"),
-                    _riwayatCard("Kamis", "23 Oktober 2025", "06:33 Wib", "10:55 Wib"),
-                    _riwayatCard("Jumat", "24 Oktober 2025", "08:11 Wib", "09:55 Wib"),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFD32F2F),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text("Riwayat Parkir"),
       ),
 
-      // BOTTOM NAV
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, -1)),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Icon(Icons.home, size: 28, color: Colors.red),
-            Icon(Icons.emoji_emotions, size: 28, color: Colors.red),
-            Icon(Icons.call, size: 28, color: Colors.red),
-            Icon(Icons.person, size: 28, color: Colors.red),
-          ],
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _riwayatCard("Senin", "20 Oktober 2025", "06:33 WIB", "09:55 WIB"),
+              _riwayatCard("Senin", "20 Oktober 2025", "13:56 WIB", "15:24 WIB"),
+              _riwayatCard("Kamis", "23 Oktober 2025", "06:33 WIB", "10:55 WIB"),
+              _riwayatCard("Jumat", "24 Oktober 2025", "08:11 WIB", "09:55 WIB"),
+            ],
+          ),
         ),
       ),
     );
   }
-}
-
-
-// PERBAIKAN BOTTOM NAV UNTUK detail_zona.dart
-Widget fixedBottomNav() {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      boxShadow: [
-        BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, -1)),
-      ],
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: const [
-        Icon(Icons.home, size: 28, color: Colors.red),
-        Icon(Icons.qr_code_scanner, size: 28, color: Colors.red),
-        Icon(Icons.access_time, size: 28, color: Colors.red),
-        Icon(Icons.person, size: 28, color: Colors.red),
-      ],
-    ),
-  );
 }
