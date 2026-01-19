@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DetailZonaScreen extends StatefulWidget {
   const DetailZonaScreen({super.key});
@@ -12,27 +15,26 @@ class DetailZonaScreen extends StatefulWidget {
 
 class _DetailZonaScreenState extends State<DetailZonaScreen> {
   final Location _location = Location();
-  LatLng? _currentPosition;
-  LatLng? _nearestZone;
 
-  final Distance _distance = const Distance();
+  LatLng? _currentPosition;
+  List<LatLng> _routePoints = [];
 
   // ====================== DATA ZONA PARKIR ======================
   final Map<String, LatLng> zonaParkir = {
-    'Parkir Belakang 1': LatLng(-7.921950, 112.597400),
-    'Parkir Belakang 2': LatLng(-7.922300, 112.597800),
-    'Parkir Depan 1': LatLng(-7.921600, 112.598100),
-    'Parkir Depan 2': LatLng(-7.921300, 112.597900),
+    'Parkir Belakang 1': LatLng(-7.92185, 112.59725),
+    'Parkir Belakang 2': LatLng(-7.92215, 112.59775),
+    'Parkir Depan 1': LatLng(-7.92155, 112.59805),
+    'Parkir Depan 2': LatLng(-7.92130, 112.59830),
   };
 
   @override
   void initState() {
     super.initState();
-    _getLocation();
+    _initLocation();
   }
 
-  // ====================== GET USER LOCATION ======================
-  Future<void> _getLocation() async {
+  // ====================== INIT LOCATION ======================
+  Future<void> _initLocation() async {
     bool serviceEnabled = await _location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await _location.requestService();
@@ -45,12 +47,14 @@ class _DetailZonaScreenState extends State<DetailZonaScreen> {
       if (permissionGranted != PermissionStatus.granted) return;
     }
 
-    final locationData = await _location.getLocation();
-    final userPos = LatLng(locationData.latitude!, locationData.longitude!);
+    final loc = await _location.getLocation();
+    final userPos = LatLng(loc.latitude!, loc.longitude!);
+
+    final nearest = _findNearestZone(userPos);
+    await _fetchRoute(userPos, nearest);
 
     setState(() {
       _currentPosition = userPos;
-      _nearestZone = _findNearestZone(userPos);
     });
   }
 
@@ -60,13 +64,32 @@ class _DetailZonaScreenState extends State<DetailZonaScreen> {
     LatLng nearest = zonaParkir.values.first;
 
     for (final zone in zonaParkir.values) {
-      final d = _distance.as(LengthUnit.Meter, user, zone);
+      final d = const Distance().as(LengthUnit.Meter, user, zone);
       if (d < minDistance) {
         minDistance = d;
         nearest = zone;
       }
     }
     return nearest;
+  }
+
+  // ====================== FETCH ROUTE OSRM ======================
+  Future<void> _fetchRoute(LatLng start, LatLng end) async {
+    final url = 'https://router.project-osrm.org/route/v1/driving/'
+        '${start.longitude},${start.latitude};'
+        '${end.longitude},${end.latitude}'
+        '?overview=full&geometries=geojson';
+
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final coords = data['routes'][0]['geometry']['coordinates'];
+
+      setState(() {
+        _routePoints = coords.map<LatLng>((c) => LatLng(c[1], c[0])).toList();
+      });
+    }
   }
 
   @override
@@ -84,7 +107,7 @@ class _DetailZonaScreenState extends State<DetailZonaScreen> {
           children: [
             // ====================== MAP ======================
             Container(
-              height: 180,
+              height: 190,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -95,8 +118,8 @@ class _DetailZonaScreenState extends State<DetailZonaScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : FlutterMap(
                         options: MapOptions(
-                          center: _currentPosition,
-                          zoom: 17,
+                          initialCenter: _currentPosition!,
+                          initialZoom: 17,
                         ),
                         children: [
                           TileLayer(
@@ -105,15 +128,12 @@ class _DetailZonaScreenState extends State<DetailZonaScreen> {
                             userAgentPackageName: 'com.example.ummparkir',
                           ),
 
-                          // ===== ROUTING (GARIS ARAH) =====
-                          if (_nearestZone != null)
+                          // ===== ROUTE =====
+                          if (_routePoints.isNotEmpty)
                             PolylineLayer(
                               polylines: [
                                 Polyline(
-                                  points: [
-                                    _currentPosition!,
-                                    _nearestZone!,
-                                  ],
+                                  points: _routePoints,
                                   color: Colors.blue,
                                   strokeWidth: 4,
                                 ),
@@ -123,7 +143,6 @@ class _DetailZonaScreenState extends State<DetailZonaScreen> {
                           // ===== MARKERS =====
                           MarkerLayer(
                             markers: [
-                              // USER
                               Marker(
                                 point: _currentPosition!,
                                 width: 40,
@@ -134,8 +153,6 @@ class _DetailZonaScreenState extends State<DetailZonaScreen> {
                                   size: 40,
                                 ),
                               ),
-
-                              // ZONA PARKIR
                               ...zonaParkir.entries.map(
                                 (e) => Marker(
                                   point: e.value,
@@ -146,13 +163,12 @@ class _DetailZonaScreenState extends State<DetailZonaScreen> {
                                       const Icon(
                                         Icons.local_parking,
                                         color: Colors.red,
-                                        size: 30,
+                                        size: 28,
                                       ),
                                       Text(
                                         e.key,
                                         style: const TextStyle(
                                           fontSize: 8,
-                                          color: Colors.black,
                                         ),
                                       ),
                                     ],
@@ -168,19 +184,76 @@ class _DetailZonaScreenState extends State<DetailZonaScreen> {
 
             const SizedBox(height: 16),
 
-            // ====================== GRID PARKIR ======================
+            // ====================== GRID REAL-TIME ======================
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.1,
-                children: const [
-                  _ZonaCard('Parkir Belakang 1', '60/100', '(Cukup)'),
-                  _ZonaCard('Parkir Belakang 2', '12/100', '(Banyak)'),
-                  _ZonaCard('Parkir Depan 1', '50/100', '(Cukup)'),
-                  _ZonaCard('Parkir Depan 2', '100/100', '(Penuh)'),
-                ],
+              child: StreamBuilder<QuerySnapshot>(
+                stream:
+                    FirebaseFirestore.instance.collection('zone').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Text(
+                          'Tidak ada data zona parkir',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final zones = snapshot.data!.docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    return {
+                      'name': data['name'] ?? 'Zona',
+                      'available': data['avaible'] ?? 0,
+                      'capacity': data['capacity'] ?? 100,
+                    };
+                  }).toList();
+
+                  return GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.1,
+                    ),
+                    itemCount: zones.length,
+                    itemBuilder: (context, index) {
+                      final zone = zones[index];
+                      final available = zone['available'] as int;
+                      final capacity = zone['capacity'] as int;
+
+                      String status;
+                      if (available == 0) {
+                        status = '(Penuh)';
+                      } else if (available < 20) {
+                        status = '(Sedikit)';
+                      } else if (available < 50) {
+                        status = '(Cukup)';
+                      } else {
+                        status = '(Banyak)';
+                      }
+
+                      return _ZonaCard(
+                        zone['name'],
+                        '$available/$capacity',
+                        status,
+                      );
+                    },
+                  );
+                },
               ),
             ),
 
@@ -193,11 +266,11 @@ class _DetailZonaScreenState extends State<DetailZonaScreen> {
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.info, color: Color(0xFF8B0000)),
+                  Icon(Icons.navigation, color: Color(0xFF8B0000)),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Arah otomatis ke zona parkir terdekat dari lokasi Anda',
+                      'Rute mengikuti jalan menuju zona parkir terdekat',
                       style: TextStyle(fontSize: 12),
                     ),
                   ),
@@ -230,20 +303,13 @@ class _ZonaCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text(title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text(
-            '$count Tempat Kosong',
-            style: const TextStyle(fontSize: 12),
-          ),
-          Text(
-            status,
-            style: const TextStyle(fontSize: 11, color: Colors.grey),
-          ),
+          Text('$count Tempat Kosong', style: const TextStyle(fontSize: 12)),
+          Text(status,
+              style: const TextStyle(fontSize: 11, color: Colors.grey)),
         ],
       ),
     );
